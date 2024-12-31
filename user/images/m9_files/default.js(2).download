@@ -1,0 +1,364 @@
+'use strict';
+
+/**
+ * Run the Load the Webfont .
+ */
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+Banner.prototype.webFontLoad = function (options) {
+  WebFont.load(options);
+  this.start();
+};
+
+/**
+ * Run the animation functions.
+ */
+Banner.prototype.start = function () {
+  var _this = this;
+  this.dims = this.bannerWidth + 'x' + this.bannerHeight;
+  this.path = this.bannerData.feed[0];
+  this.showDefault = this.path.EconomyPrice == '' && this.path.BusinessPrice == '' ? true : false;
+  this.images = this.getImageUrls([this.path.backgroundImageUrl_InputEditor_asset, this.path.image1Url_InputEditor_asset, this.path.image2Url_InputEditor_asset, this.path.image3Url_InputEditor_asset, this.path.image4Url_InputEditor_asset, this.path.image5Url_InputEditor_asset, this.path.image6Url_InputEditor_asset, this.path.image7Url_InputEditor_asset, this.path.image8Url_InputEditor_asset, this.path.image9Url_InputEditor_asset, this.path.image10Url_InputEditor_asset, this.path.logoUrl_InputEditor_asset]);
+  this.preloadImages(this.images, function () {
+    _this.createElements();
+    _this.setup();
+    _this.hidePreloader();
+    _this.animate();
+    _this.bindEvents();
+  });
+};
+Banner.prototype.getImageUrls = function (imageElementArray) {
+  var urls = imageElementArray.map(function (imageElement) {
+    return imageElement.hasOwnProperty('Url') ? imageElement.Url : imageElement;
+  });
+  return urls.filter(Boolean);
+};
+
+/**
+ * Create dom elements.
+ */
+Banner.prototype.createElements = function () {
+  this.copyArr = [];
+  this.imageArr = [];
+  this.shapeArr = [];
+  var isRetina = function isRetina(smartObject) {
+    if (smartObject.hasOwnProperty('retina')) {
+      return smartObject.retina.toLowerCase() == 'true' ? true : false;
+    } else {
+      return false;
+    }
+  };
+  this.bgColor = this.smartObject({
+    id: 'backgroundColor_ColorEditor_asset',
+    width: this.bannerWidth,
+    height: this.bannerHeight,
+    backgroundColor: this.path.backgroundColor_ColorEditor_asset,
+    parent: this.banner
+  });
+  this.bgImage = this.smartObject(_objectSpread(_objectSpread({
+    id: 'backgroundImage_InputEditor_asset',
+    backgroundImage: this.path.backgroundImageUrl_InputEditor_asset.hasOwnProperty('Url') ? this.path.backgroundImageUrl_InputEditor_asset.Url : this.path.backgroundImageUrl_InputEditor_asset
+  }, this.path.backgroundImageStyle_InputEditor_asset), {}, {
+    retina: isRetina(this.path.backgroundImageStyle_InputEditor_asset),
+    parent: this.banner
+  }));
+  for (var i = 1; i <= 7; i++) {
+    this["shape" + i] = this.smartObject(_objectSpread(_objectSpread({
+      id: "shape" + i + "_InputEditor_asset"
+    }, this.path["shape" + i + "_InputEditor_asset"]), {}, {
+      parent: this.banner
+    }));
+    this.shapeArr.push(this["shape" + i]);
+  }
+  for (var e = 1; e <= 10; e++) {
+    this["image" + e] = this.smartObject(_objectSpread(_objectSpread({
+      id: "image" + e + "Style_InputEditor_asset",
+      backgroundImage: this.path["image" + e + "Url_InputEditor_asset"].hasOwnProperty('Url') ? this.path["image" + e + "Url_InputEditor_asset"].Url : this.path["image" + e + "Url_InputEditor_asset"]
+    }, this.path["image" + e + "Style_InputEditor_asset"]), {}, {
+      retina: isRetina(this.path["image" + e + "Style_InputEditor_asset"]),
+      parent: this.path["image" + e + "Style_InputEditor_asset"].hasOwnProperty('parent') ? this[this.path["image" + e + "Style_InputEditor_asset"].parent] : this.banner
+    }));
+    this.imageArr.push(this["image" + e]);
+  }
+  for (var j = 1; j <= 10; j++) {
+    this["textGrid" + j] = this.smartObject(_objectSpread(_objectSpread({
+      id: "textGrid" + j + "_InputEditor_text"
+    }, this.path["textGrid" + j + "_InputEditor_text"]), {}, {
+      parent: this.path["textGrid" + j + "_InputEditor_text"].hasOwnProperty('parent') ? this[this.path["textGrid" + j + "_InputEditor_text"].parent] : this.banner
+    }));
+  }
+  for (var q = 1; q <= 20; q++) {
+    this["copy" + q] = this.smartObject({
+      id: "copy" + q + "_InputEditor_text",
+      className: 'text',
+      parent: this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('varParent') ? this[this.path["copy" + q + "_InputEditor_text"].varParent] : this.banner
+    });
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('styles')) {
+      gsap.set(this["copy" + q], this.path[this.path["copy" + q + "_InputEditor_text"].styles + '_InputEditor_text']);
+    }
+    gsap.set(this["copy" + q], this.path["copy" + q + "_InputEditor_text"]);
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('Origin') && this.path.Origin != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].Origin;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, this.path.Origin);
+    }
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('Destination') && this.path.Destination != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].Destination;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, this.path.Destination);
+    }
+    //EconomyPrice	EconomyDeal	EconomyTerms
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('Currency') && this.path.Currency != '') {
+      var index = this["copy" + q].innerHTML.indexOf(this.path["copy" + q + "_InputEditor_text"].Currency);
+      var _data = this.path["copy" + q + "_InputEditor_text"].Currency;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, "<span style=\"font-family: MyliusModern-Bold;\">" + this.path.Currency + "</span>");
+    }
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('EconomyPrice') && this.path.EconomyPrice != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].EconomyPrice;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, "<span style=\"font-family: MyliusModern-Bold;\">" + this.path.EconomyPrice + "</span>");
+    }
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('BusinessPrice') && this.path.BusinessPrice != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].BusinessPrice;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, "<span style=\"font-family: MyliusModern-Bold;\">" + this.path.BusinessPrice + "</span>");
+    }
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('EconomyDeal') && this.path.EconomyDeal != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].EconomyDeal;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, this.path.EconomyDeal);
+    }
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('BusinessDeal') && this.path.BusinessDeal != '') {
+      var _data = this.path["copy" + q + "_InputEditor_text"].BusinessDeal;
+      this["copy" + q].innerHTML = this["copy" + q].innerHTML.replace(_data, this.path.BusinessDeal);
+    }
+  }
+  this.legal = this.smartObject(_objectSpread(_objectSpread({
+    id: 'legal_InputEditor_text'
+  }, this.path.legal_InputEditor_text), {}, {
+    innerHTML: this.path.legal_InputEditor_text.hasOwnProperty('xCheck') && this.path[this.path.legal_InputEditor_text.xCheck] != '' ? this.path[this.path.legal_InputEditor_text.xCheck] : this.path.legal_InputEditor_text.innerHTML,
+    parent: this.path.legal_InputEditor_text.hasOwnProperty('varParent') ? this[this.path.legal_InputEditor_text.varParent] : this.banner
+  }));
+  this.logo = this.smartObject(_objectSpread(_objectSpread({
+    id: 'logoStyle_InputEditor_asset',
+    backgroundImage: this.path.logoUrl_InputEditor_asset.hasOwnProperty('Url') ? this.path.logoUrl_InputEditor_asset.Url : this.path.logoUrl_InputEditor_asset
+  }, this.path.logoStyle_InputEditor_asset), {}, {
+    retina: isRetina(this.path.logoStyle_InputEditor_asset),
+    parent: this.banner
+  }));
+  this.cta = this.smartObject(_objectSpread(_objectSpread({
+    id: 'ctaStyle_InputEditor_text'
+  }, this.path.ctaStyle_InputEditor_text), {}, {
+    parent: this.path.ctaStyle_InputEditor_text.hasOwnProperty('varParent') ? this[this.path.ctaStyle_InputEditor_text.varParent] : this.banner
+  }));
+  this.exit = this.smartObject({
+    id: 'EXIT',
+    zIndex: 100,
+    width: this.bannerWidth,
+    height: this.bannerHeight,
+    parent: this.banner
+  });
+};
+
+/**
+ * Setup initial element states.
+ */
+Banner.prototype.setup = function () {
+  var _this2 = this;
+  this.enableMouse = false;
+  if (this.showDefault == true) {
+    gsap.set(this.legal, {
+      innerHTML: this.path.legal_InputEditor_text.innerHTML
+    });
+    // defaultCopy
+    for (var q = 1; q <= 20; q++) {
+      if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('defaultCopy')) {
+        gsap.set(this["copy" + q], {
+          innerHTML: this.path["copy" + q + "_InputEditor_text"].defaultCopy
+        });
+      }
+    }
+  }
+  var bulletPoints = [];
+  this.frame2Copy = [];
+  this.frame3Copy = [];
+  // let frame5Copy = [];
+  // let frame3Copy = [];
+
+  this.lastBullet;
+  this.altCopy;
+  for (var q = 1; q <= 20; q++) {
+    if (this.path["copy" + q + "_InputEditor_text"].hasOwnProperty('altCopy')) {
+      this.lastBullet = this["copy" + q];
+      this.altCopy = this.path["copy" + q + "_InputEditor_text"].altCopy;
+    }
+  }
+  for (var i = 0; i <= this.textGrid1.childNodes.length - 1; i++) {
+    this["bullet" + i] = this.shape1.cloneNode(true);
+    this["bullet" + i].id = "bullet" + i;
+    bulletPoints.push(this["bullet" + i]);
+    gsap.set(this["bullet" + i], {
+      display: 'block'
+    });
+    this.textGrid1.childNodes[i].appendChild(this["bullet" + i]);
+  }
+  for (var ii = 0; ii <= this.textGrid5.childNodes.length - 1; ii++) {
+    this["grid5Copy" + ii] = new SplitText(this.textGrid5.childNodes[ii], {
+      type: "lines"
+    });
+    this.frame2Copy.push(this["grid5Copy" + ii].lines);
+  }
+  for (var iii = 0; iii <= this.textGrid6.childNodes.length - 1; iii++) {
+    this["grid6Copy" + iii] = new SplitText(this.textGrid6.childNodes[iii], {
+      type: "lines"
+    });
+    this.frame3Copy.push(this["grid6Copy" + iii].lines);
+  }
+  gsap.set(bulletPoints[bulletPoints.length - 1], {
+    backgroundColor: this.path.shape1_InputEditor_asset.tickColor
+  });
+  this.banner.addEventListener('mouseover', function () {
+    if (_this2.enableMouse == true) _this2.cta.to({
+      backgroundColor: _this2.path.ctaStyle_InputEditor_text.rollOverBG,
+      color: _this2.path.ctaStyle_InputEditor_text.rollOverText
+    });
+  });
+  this.banner.addEventListener('mouseout', function () {
+    if (_this2.enableMouse == true) _this2.cta.to({
+      backgroundColor: _this2.path.ctaStyle_InputEditor_text.backgroundColor,
+      color: _this2.path.ctaStyle_InputEditor_text.color
+    });
+  });
+};
+
+/**
+ * Hide the preloader.
+ */
+Banner.prototype.hidePreloader = function () {
+  gsap.to('.preloader', 1, {
+    autoAlpha: 0
+  });
+};
+
+/**
+ * Animation timeline.
+ */
+Banner.prototype.animate = function () {
+  var _this3 = this;
+  this.timeline = gsap.timeline({
+    paused: false
+  }).from(this.textGrid1.childNodes, {
+    duration: 1,
+    autoAlpha: 0,
+    y: this.path.shape5_InputEditor_asset.offsetY,
+    stagger: 0.8,
+    ease: CustomEase.create("custom", "M0,0,C0.032,0.678,0.414,1,0.5,1,0.604,1,0.374,1,1,1")
+  }, 'f2');
+  if (this.altCopy != undefined) {
+    console.log(this.altCopy);
+    this.timeline.to(this.lastBullet, {
+      duration: 0.5,
+      autoAlpha: 0
+    }, '+=1').set(this.lastBullet, {
+      innerHTML: this.altCopy
+    }).to(this.lastBullet, {
+      duration: 0.5,
+      autoAlpha: 1
+    });
+  }
+  this.timeline.to(this.textGrid1.childNodes, {
+    duration: 0.3,
+    autoAlpha: 0,
+    y: '+=20',
+    stagger: -0.15,
+    ease: 'sine.out'
+  }, '+=2').from(this.frame2Copy, {
+    duration: 1,
+    autoAlpha: 0,
+    y: this.path.shape5_InputEditor_asset.offsetY,
+    stagger: 0.2,
+    ease: CustomEase.create("custom", "M0,0,C0.032,0.678,0.414,1,0.5,1,0.604,1,0.374,1,1,1")
+  }).to(this.frame2Copy, {
+    duration: 0.3,
+    autoAlpha: 0,
+    y: '+=20',
+    stagger: -0.15,
+    ease: 'sine.out'
+  }, '+=2').from(this.frame3Copy, {
+    duration: 1,
+    autoAlpha: 0,
+    y: this.path.shape5_InputEditor_asset.offsetY,
+    stagger: 0.2,
+    ease: CustomEase.create("custom", "M0,0,C0.032,0.678,0.414,1,0.5,1,0.604,1,0.374,1,1,1")
+  }, 'aa-logo').to(this.shape2, {
+    duration: 0.3,
+    autoAlpha: 0
+  }, 'aa-logo').from(this.legal, {
+    duration: 0.3,
+    autoAlpha: 0
+  }).from(this.cta, {
+    duration: 0.3,
+    autoAlpha: 0
+  });
+  if (this.path.ctaStyle_InputEditor_text.hasOwnProperty('text2')) {
+    this.timeline.to(this.cta, {
+      duration: 0.3,
+      color: this.path.ctaStyle_InputEditor_text.backgroundColor
+    }, '+=1').set(this.cta, {
+      innerHTML: this.path.ctaStyle_InputEditor_text.text2
+    }).to(this.cta, {
+      duration: 0.3,
+      color: 'white'
+    });
+  }
+  if (this.path.ctaStyle_InputEditor_text.hasOwnProperty('text3')) {
+    this.timeline.to(this.cta, {
+      duration: 0.3,
+      color: this.path.ctaStyle_InputEditor_text.backgroundColor
+    }, '+=1').set(this.cta, {
+      innerHTML: this.path.ctaStyle_InputEditor_text.text3
+    }).to(this.cta, {
+      duration: 0.3,
+      color: 'white'
+    });
+  }
+  this.timeline.call(function () {
+    _this3.enableMouse = true;
+  });
+  // .to(this.cta, {duration: 0.3, innerHTML: this.path.ctaStyle_InputEditor_text.text2})
+
+  // 
+};
+
+/**
+ * Setup preview data element states.
+ */
+Banner.prototype.setupPreview = function (targetId, settings) {
+  var _settings = settings;
+  console.log(targetId);
+  console.log(settings);
+  if (targetId == 'logo_InputEditor_asset') {
+    if (settings.hasOwnProperty('backgroundImage')) {
+      _settings.backgroundImage = this.getImagePath(settings.backgroundImage);
+      gsap.set(this.logo, {
+        backgroundImage: 'url(' + _settings.backgroundImage + ')'
+      });
+    } else {
+      gsap.set(this.logo, _settings);
+    }
+  }
+  if (targetId == 'backgroundImage_InputEditor_asset') {
+    if (settings.hasOwnProperty('backgroundImage')) {
+      _settings.backgroundImage = this.getImagePath(settings.backgroundImage);
+      gsap.set(this.bgImage, {
+        backgroundImage: 'url(' + _settings.backgroundImage + ')'
+      });
+    } else {
+      gsap.set(this.bgImage, _settings);
+    }
+  }
+  if (targetId == 'textStyle_InputEditor_text') {
+    gsap.set(this.copyArr, _settings);
+  } else {
+    gsap.set("#" + targetId, _settings);
+  }
+};
